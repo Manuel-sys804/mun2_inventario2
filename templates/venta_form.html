@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Registrar venta{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Registrar venta</div>
+    <div class="page-sub">Descuenta el stock automáticamente</div>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('ventas') }}">&larr; Volver a ventas</a>
+</div>
+
+<div class="card form-card">
+  <form method="POST">
+    <div class="form-group">
+      <label>Producto (SKU)</label>
+      <select name="sku" required>
+        <option value="">Selecciona un producto...</option>
+        {% for p in productos %}
+        <option value="{{ p.sku }}">{{ p.sku }} — {{ p.nombre }} (stock: {{ p.stock }}) — RD${{ "{:,}".format(p.precio_venta) }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Cantidad</label>
+        <input type="number" name="cantidad" min="1" value="1" required>
+      </div>
+      <div class="form-group">
+        <label>Método de pago</label>
+        <select name="metodo_pago">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Pago móvil">Pago móvil</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Registrar venta</button>
+      <a class="btn btn-outline" href="{{ url_for('ventas') }}">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

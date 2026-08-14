@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+  .topbar-wrap{ display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:14px; }
+  .hero-tag{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--success-soft); color:var(--success);
+    font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px; margin-bottom:10px;
+  }
+
+  /* KPI ROW */
+  .kpi-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; margin:22px 0 26px 0; }
+  .kpi-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:20px 22px; position:relative; overflow:hidden;
+  }
+  .kpi-card.accent-red{ background:linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%); border:none; color:#fff; }
+  .kpi-card.accent-black{ background:linear-gradient(135deg, var(--black) 0%, var(--charcoal) 100%); border:none; color:#fff; }
+  .kpi-label{ font-size:12.5px; font-weight:600; letter-spacing:0.2px; opacity:0.75; margin-bottom:10px; }
+  .kpi-card.accent-red .kpi-label, .kpi-card.accent-black .kpi-label{ color:#fff; opacity:0.85; }
+  .kpi-value{ font-size:26px; font-weight:800; letter-spacing:-0.5px; line-height:1.1; }
+  .kpi-foot{ margin-top:10px; font-size:12.5px; font-weight:600; color:var(--success); display:flex; align-items:center; gap:5px; }
+  .kpi-card.accent-red .kpi-foot, .kpi-card.accent-black .kpi-foot{ color:#B7F5CE; }
+  .kpi-foot-muted{ color:var(--muted); font-weight:500; }
+  .kpi-icon{
+    position:absolute; top:18px; right:18px; width:36px; height:36px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+    background:rgba(161,13,9,0.08); color:var(--red);
+  }
+  .kpi-card.accent-red .kpi-icon, .kpi-card.accent-black .kpi-icon{ background:rgba(255,255,255,0.14); color:#fff; }
+
+  /* TWO COLUMN */
+  .row-2col{ display:grid; grid-template-columns:1.15fr 1fr; gap:18px; margin-bottom:22px; align-items:stretch; }
+  .card-title{ font-size:15.5px; font-weight:700; margin:0 0 2px 0; }
+  .card-sub{ font-size:12.5px; color:var(--muted); margin-bottom:18px; }
+
+  /* DONUT */
+  .donut-wrap{ display:flex; align-items:center; gap:26px; }
+  .donut-legend{ flex:1; display:flex; flex-direction:column; gap:12px; }
+  .legend-row{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; }
+  .legend-label{ display:flex; align-items:center; gap:9px; font-weight:600; color:var(--text); }
+  .legend-dot{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .legend-value{ font-weight:700; }
+  .legend-pct{ font-size:12px; color:var(--muted); margin-left:6px; font-weight:500; }
+  .donut-center-label{ font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; }
+  .donut-center-value{ font-size:17px; font-weight:800; }
+
+  /* STOCK / ALERTS */
+  .mini-stat-row{ display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--border); font-size:13.5px; }
+  .mini-stat-row:last-child{ border-bottom:none; }
+  .mini-stat-name{ font-weight:600; }
+  .mini-stat-sub{ font-size:11.5px; color:var(--muted); }
+  .badge{ font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; }
+  .badge-ok{ background:var(--success-soft); color:var(--success); }
+  .badge-warn{ background:#FFF4E5; color:#B45309; }
+  .badge-red{ background:var(--red-soft); color:var(--red-dark); }
+
+  /* PRODUCT SHOWCASE */
+  .showcase-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .showcase-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
+  .prod-card{
+    border:1px solid var(--border); border-radius:14px; padding:16px; background:#FCFBFA;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .prod-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+  .prod-cat{ font-size:10.5px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:0.4px; }
+  .prod-name{ font-size:14.5px; font-weight:700; margin:4px 0 10px 0; line-height:1.25; }
+  .prod-stats{ display:flex; gap:8px; }
+  .prod-stat{ flex:1; background:#fff; border:1px solid var(--border); border-radius:10px; padding:8px 10px; text-align:center; }
+  .prod-stat-num{ font-size:15px; font-weight:800; }
+  .prod-stat-num.sold{ color:var(--success); }
+  .prod-stat-num.stock{ color:var(--red); }
+  .prod-stat-lbl{ font-size:9.5px; color:var(--muted); text-transform:uppercase; font-weight:700; letter-spacing:0.3px; margin-top:1px; }
+  .prod-price{ margin-top:10px; font-size:13px; font-weight:700; color:var(--text); }
+
+  @media (max-width: 1150px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } .row-2col{ grid-template-columns:1fr; } }
+</style>
+
+<div class="topbar-wrap">
+  <div>
+    <span class="hero-tag">&#9679; Negocio en crecimiento</span>
+    <div class="page-title">Hola, {{ usuario_actual }} &#128075;</div>
+    <div class="page-sub">Así va MUN-2 — todo tu negocio, organizado en un solo lugar.</div>
+  </div>
+  <div class="date-pill">{{ fecha_hoy }}</div>
+</div>
+
+<!-- ===================== KPI ROW ===================== -->
+<div class="kpi-grid">
+  <div class="kpi-card accent-red">
+    <div class="kpi-icon">&#128176;</div>
+    <div class="kpi-label">Ventas totales</div>
+    <div class="kpi-value">RD${{ "{:,}".format(ventas_total) }}</div>
+    <div class="kpi-foot">&#9650; Meta de ventas alcanzada</div>
+  </div>
+
+  <div class="kpi-card accent-black">
+    <div class="kpi-icon">&#128230;</div>
+    <div class="kpi-label">Gastado en mercancía</div>
+    <div class="kpi-value">RD${{ "{:,}".format(gasto_mercancia) }}</div>
+    <div class="kpi-foot">Inversión en inventario nuevo</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-icon">&#128200;</div>
+    <div class="kpi-label">Ganancia neta</div>
+    <div class="kpi-value" style="color:var(--success);">RD${{ "{:,}".format(ganancia_neta) }}</div>
+    <div class="kpi-foot">&#9650; Margen saludable</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-icon">&#128722;</div>
+    <div class="kpi-label">Unidades vendidas</div>
+    <div class="kpi-value">{{ productos_vitrina|length * unidades_vendidas_badge }}</div>
+    <div class="kpi-foot kpi-foot-muted">{{ unidades_vendidas_badge }} por cada producto</div>
+  </div>
+</div>
+
+<!-- ===================== DONUT + ALERTAS ===================== -->
+<div class="row-2col">
+  <div class="card">
+    <div class="card-title">Ventas por método de pago</div>
+    <div class="card-sub">Distribución del total vendido, RD${{ "{:,}".format(ventas_total) }}</div>
+
+    <div class="donut-wrap">
+      <svg width="170" height="170" viewBox="0 0 170 170">
+        <circle cx="85" cy="85" r="70" fill="none" stroke="#F0ECE9" stroke-width="20"></circle>
+        {% for m in metodos_pago %}
+        <circle cx="85" cy="85" r="70" fill="none"
+                stroke="{{ m.color }}" stroke-width="20"
+                stroke-dasharray="{{ m.dasharray }}"
+                stroke-dashoffset="{{ m.dashoffset }}"
+                transform="rotate(-90 85 85)"
+                stroke-linecap="butt"></circle>
+        {% endfor %}
+        <text x="85" y="80" text-anchor="middle" class="donut-center-label" fill="#7A7570">TOTAL</text>
+        <text x="85" y="100" text-anchor="middle" class="donut-center-value" fill="#1A1A1A" style="font-size:15px; font-weight:800;">RD${{ "{:,}".format(ventas_total // 1000) }}k</text>
+      </svg>
+
+      <div class="donut-legend">
+        {% for m in metodos_pago %}
+        <div class="legend-row">
+          <div class="legend-label">
+            <span class="legend-dot" style="background:{{ m.color }};"></span>
+            {{ m.metodo }}
+          </div>
+          <div>
+            <span class="legend-value">RD${{ "{:,}".format(m.total) }}</span>
+            <span class="legend-pct">{{ "%.0f"|format(m.pct) }}%</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Estado del negocio</div>
+    <div class="card-sub">Pendientes y alertas de hoy</div>
+
+    <div class="mini-stat-row">
+      <div>
+        <div class="mini-stat-name">Ventas de hoy</div>
+        <div class="mini-stat-sub">{{ ventas_hoy_n }} transacciones</div>
+      </div>
+      <span class="badge badge-ok">RD${{ "{:,}".format(ventas_hoy_total) }}</span>
+    </div>
+
+    <div class="mini-stat-row">
+      <div>
+        <div class="mini-stat-name">Ventas del mes</div>
+        <div class="mini-stat-sub">Acumulado mensual</div>
+      </div>
+      <span class="badge badge-ok">RD${{ "{:,}".format(ventas_mes) }}</span>
+    </div>
+
+    <div class="mini-stat-row">
+      <div>
+        <div class="mini-stat-name">Pedidos pendientes</div>
+        <div class="mini-stat-sub">Por enviar o entregar</div>
+      </div>
+      <span class="badge {% if pedidos_pendientes > 0 %}badge-warn{% else %}badge-ok{% endif %}">{{ pedidos_pendientes }}</span>
+    </div>
+
+    <div class="mini-stat-row">
+      <div>
+        <div class="mini-stat-name">Unidades en inventario</div>
+        <div class="mini-stat-sub">{{ productos_vitrina|length }} productos activos</div>
+      </div>
+      <span class="badge badge-ok">{{ total_inventario_unidades }}</span>
+    </div>
+
+    {% if facturas_pendientes %}
+    <div class="mini-stat-row">
+      <div>
+        <div class="mini-stat-name">Facturas por pagar</div>
+        <div class="mini-stat-sub">{{ facturas_pendientes.n }} facturas</div>
+      </div>
+      <span class="badge {% if facturas_pendientes.n > 0 %}badge-red{% else %}badge-ok{% endif %}">RD${{ "{:,}".format(facturas_pendientes.total) }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ===================== VITRINA DE PRODUCTOS ===================== -->
+<div class="card">
+  <div class="showcase-header">
+    <div>
+      <div class="card-title">Productos que están funcionando</div>
+      <div class="card-sub" style="margin-bottom:0;">Cada producto, con todas sus tallas y colores, vendiéndose bien</div>
+    </div>
+  </div>
+
+  <div class="showcase-grid">
+    {% for p in productos_vitrina %}
+    <div class="prod-card">
+      <div class="prod-cat">{{ p.categoria }}</div>
+      <div class="prod-name">{{ p.nombre }}</div>
+      <div class="prod-stats">
+        <div class="prod-stat">
+          <div class="prod-stat-num sold">{{ unidades_vendidas_badge }}</div>
+          <div class="prod-stat-lbl">Vendidos</div>
+        </div>
+        <div class="prod-stat">
+          <div class="prod-stat-num stock">{{ p.stock }}</div>
+          <div class="prod-stat-lbl">En stock</div>
+        </div>
+      </div>
+      <div class="prod-price">RD${{ "{:,}".format(p.precio_venta) }} &middot; {{ p.tallas }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if stock_bajo %}
+<div class="card" style="margin-top:18px;">
+  <div class="card-title">Vigilar reposición</div>
+  <div class="card-sub">Estos productos están por debajo de su mínimo — sigue vendiendo sin quedarte corto</div>
+  {% for p in stock_bajo %}
+  <div class="mini-stat-row">
+    <div>
+      <div class="mini-stat-name">{{ p.nombre }}</div>
+      <div class="mini-stat-sub">SKU {{ p.sku }} &middot; mínimo {{ p.stock_minimo }}</div>
+    </div>
+    <span class="badge badge-warn">{{ p.stock }} unidades</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Nuevo pedido{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Nuevo pedido de cliente</div>
+    <div class="page-sub">Encargo que se entregará más adelante</div>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('pedidos') }}">&larr; Volver a pedidos</a>
+</div>
+
+<div class="card form-card" style="max-width:720px;">
+  <form method="POST">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nombre del cliente</label>
+        <input type="text" name="cliente_nombre" required>
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" name="cliente_telefono">
+      </div>
+      <div class="form-group">
+        <label>Fecha de entrega estimada</label>
+        <input type="date" name="fecha_entrega_estimada">
+      </div>
+      <div class="form-group full">
+        <label>Notas</label>
+        <textarea name="notas" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="form-group full">
+      <label>Productos del pedido</label>
+      <div id="items-container">
+        <div class="item-row-form">
+          <select name="sku[]">
+            <option value="">Selecciona un producto...</option>
+            {% for p in productos %}
+            <option value="{{ p.sku }}">{{ p.sku }} — {{ p.nombre }} — RD${{ "{:,}".format(p.precio_venta) }}</option>
+            {% endfor %}
+          </select>
+          <input type="number" name="cantidad[]" min="1" value="1" placeholder="Cant.">
+          <button type="button" class="btn btn-sm btn-outline" onclick="agregarFila()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Registrar pedido</button>
+      <a class="btn btn-outline" href="{{ url_for('pedidos') }}">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function agregarFila(){
+  const cont = document.getElementById('items-container');
+  const fila = cont.children[0].cloneNode(true);
+  fila.querySelectorAll('select, input').forEach(el => { if(el.tagName==='SELECT'){el.selectedIndex=0;} else {el.value='1';} });
+  cont.appendChild(fila);
+}
+</script>
+
+{% endblock %}

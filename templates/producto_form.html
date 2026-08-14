@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar producto' if producto else 'Nuevo producto' }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">{{ 'Editar producto' if producto else 'Nuevo producto' }}</div>
+    <div class="page-sub">{{ 'Actualiza los datos de ' + producto.nombre if producto else 'Agrega un producto al catálogo' }}</div>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('inventario') }}">&larr; Volver al inventario</a>
+</div>
+
+<div class="card form-card">
+  <form method="POST">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>SKU</label>
+        {% if producto %}
+        <input type="text" value="{{ producto.sku }}" disabled>
+        {% else %}
+        <input type="text" name="sku" placeholder="Ej. TS-005" required>
+        {% endif %}
+      </div>
+
+      <div class="form-group full">
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ producto.nombre if producto else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Categoría</label>
+        <input type="text" name="categoria" value="{{ producto.categoria if producto else '' }}" placeholder="T-Shirts, Sneakers..." required>
+      </div>
+
+      <div class="form-group">
+        <label>Color</label>
+        <input type="text" name="color" value="{{ producto.color if producto else '' }}">
+      </div>
+
+      <div class="form-group full">
+        <label>Descripción</label>
+        <textarea name="descripcion" rows="2">{{ producto.descripcion if producto else '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Precio de venta (RD$)</label>
+        <input type="number" name="precio_venta" value="{{ producto.precio_venta if producto else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Costo (RD$)</label>
+        <input type="number" name="costo" value="{{ producto.costo if producto else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Stock actual</label>
+        <input type="number" name="stock" value="{{ producto.stock if producto else 0 }}">
+      </div>
+
+      <div class="form-group">
+        <label>Stock mínimo</label>
+        <input type="number" name="stock_minimo" value="{{ producto.stock_minimo if producto else 5 }}">
+      </div>
+
+      <div class="form-group full">
+        <label>Tallas (separadas por coma)</label>
+        <input type="text" name="tallas" value="{{ producto.tallas if producto else '' }}" placeholder="S,M,L,XL">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">{{ 'Guardar cambios' if producto else 'Agregar producto' }}</button>
+      <a class="btn btn-outline" href="{{ url_for('inventario') }}">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

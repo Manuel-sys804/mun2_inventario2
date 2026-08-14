@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Pedidos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Pedidos de clientes</div>
+    <div class="page-sub">Encargos que aún no se entregan</div>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('pedido_nuevo') }}">+ Nuevo pedido</a>
+</div>
+
+<div class="tabs">
+  <a class="tab-link {% if not estado_actual %}active{% endif %}" href="{{ url_for('pedidos') }}">Todos</a>
+  <a class="tab-link {% if estado_actual == 'Pendiente' %}active{% endif %}" href="{{ url_for('pedidos', estado='Pendiente') }}">Pendiente ({{ conteos.get('Pendiente', 0) }})</a>
+  <a class="tab-link {% if estado_actual == 'Enviado' %}active{% endif %}" href="{{ url_for('pedidos', estado='Enviado') }}">Enviado ({{ conteos.get('Enviado', 0) }})</a>
+  <a class="tab-link {% if estado_actual == 'Entregado' %}active{% endif %}" href="{{ url_for('pedidos', estado='Entregado') }}">Entregado ({{ conteos.get('Entregado', 0) }})</a>
+  <a class="tab-link {% if estado_actual == 'Cancelado' %}active{% endif %}" href="{{ url_for('pedidos', estado='Cancelado') }}">Cancelado ({{ conteos.get('Cancelado', 0) }})</a>
+</div>
+
+{% if pedidos_con_items %}
+{% for item in pedidos_con_items %}
+<div class="card" style="margin-bottom:14px;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+    <div>
+      <div style="font-weight:700; font-size:15px;">{{ item.pedido.cliente_nombre }}</div>
+      <div style="font-size:12.5px; color:var(--muted); margin-top:2px;">
+        {{ item.pedido.cliente_telefono or 'Sin teléfono' }} &middot; Pedido por {{ item.pedido.vendedor }} &middot; {{ item.pedido.fecha_pedido }}
+        {% if item.pedido.fecha_entrega_estimada %} &middot; Entrega estimada: {{ item.pedido.fecha_entrega_estimada }}{% endif %}
+      </div>
+    </div>
+    <div style="text-align:right;">
+      {% if item.pedido.estado == 'Pendiente' %}<span class="pill pill-amber">Pendiente</span>
+      {% elif item.pedido.estado == 'Enviado' %}<span class="pill pill-black">Enviado</span>
+      {% elif item.pedido.estado == 'Entregado' %}<span class="pill pill-green">Entregado</span>
+      {% else %}<span class="pill pill-gray">Cancelado</span>{% endif %}
+      <div style="font-weight:800; margin-top:6px;">RD${{ "{:,}".format(item.pedido.total) }}</div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px; font-size:13px; color:var(--text);">
+    {% for p in item.productos %}
+      {{ p.cantidad }}&times; {{ p.nombre }}{% if not loop.last %}, {% endif %}
+    {% endfor %}
+  </div>
+  {% if item.pedido.notas %}
+  <div style="margin-top:8px; font-size:12.5px; color:var(--muted); font-style:italic;">"{{ item.pedido.notas }}"</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('pedido_estado', pedido_id=item.pedido.id) }}" style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+    <select name="estado" style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); font-size:13px;">
+      <option value="Pendiente" {% if item.pedido.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+      <option value="Enviado" {% if item.pedido.estado == 'Enviado' %}selected{% endif %}>Enviado</option>
+      <option value="Entregado" {% if item.pedido.estado == 'Entregado' %}selected{% endif %}>Entregado</option>
+      <option value="Cancelado" {% if item.pedido.estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+    </select>
+    <button class="btn btn-sm btn-dark" type="submit">Actualizar estado</button>
+  </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="empty-state-icon">&#9993;</div>
+    No hay pedidos en este estado.
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

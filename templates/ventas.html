@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Ventas{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Ventas</div>
+    <div class="page-sub">Últimas {{ ventas_con_items|length }} transacciones</div>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('venta_nueva') }}">+ Registrar venta</a>
+</div>
+
+<div class="card">
+  {% if ventas_con_items %}
+  <table>
+    <thead>
+      <tr><th>Fecha</th><th>Vendedor</th><th>Productos</th><th>Método de pago</th><th>Total</th></tr>
+    </thead>
+    <tbody>
+      {% for item in ventas_con_items %}
+      <tr>
+        <td>{{ item.venta.fecha }}</td>
+        <td>{{ item.venta.vendedor }}</td>
+        <td>
+          {% for p in item.productos %}
+            {{ p.cantidad }}&times; {{ p.nombre }}{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+        <td>
+          {% if item.venta.metodo_pago == 'Efectivo' %}<span class="pill pill-green">{{ item.venta.metodo_pago }}</span>
+          {% elif item.venta.metodo_pago == 'Tarjeta' %}<span class="pill pill-red">{{ item.venta.metodo_pago }}</span>
+          {% else %}<span class="pill pill-black">{{ item.venta.metodo_pago }}</span>{% endif %}
+        </td>
+        <td><strong>RD${{ "{:,}".format(item.venta.total) }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">&#128176;</div>
+    Aún no hay ventas registradas.
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

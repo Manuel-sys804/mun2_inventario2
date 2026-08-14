@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Facturación{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Facturación de proveedores</div>
+    <div class="page-sub">Gasto en mercancía, empaque y transporte</div>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('factura_nueva') }}">+ Nueva factura</a>
+</div>
+
+<div class="stat-strip">
+  <div class="stat-box">
+    <div class="stat-box-label">Gasto total</div>
+    <div class="stat-box-value">RD${{ "{:,}".format(gasto_total) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Pendiente por pagar</div>
+    <div class="stat-box-value" style="color:var(--red-dark);">RD${{ "{:,}".format(gasto_pendiente) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Gasto de este mes</div>
+    <div class="stat-box-value">RD${{ "{:,}".format(gasto_mes) }}</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <a class="tab-link {% if not estado_actual %}active{% endif %}" href="{{ url_for('facturacion') }}">Todas</a>
+  <a class="tab-link {% if estado_actual == 'Pendiente' %}active{% endif %}" href="{{ url_for('facturacion', estado='Pendiente') }}">Pendientes</a>
+  <a class="tab-link {% if estado_actual == 'Pagada' %}active{% endif %}" href="{{ url_for('facturacion', estado='Pagada') }}">Pagadas</a>
+</div>
+
+<div class="card">
+  {% if facturas %}
+  <table>
+    <thead>
+      <tr><th>Fecha</th><th>Proveedor</th><th>N&deg; factura</th><th>Categoría</th><th>Monto</th><th>Estado</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for f in facturas %}
+      <tr>
+        <td>{{ f.fecha }}</td>
+        <td>{{ f.proveedor }}</td>
+        <td>{{ f.numero_factura or '—' }}</td>
+        <td><span class="pill pill-black">{{ f.categoria }}</span></td>
+        <td><strong>RD${{ "{:,}".format(f.monto) }}</strong></td>
+        <td>
+          {% if f.estado == 'Pagada' %}<span class="pill pill-green">Pagada</span>
+          {% else %}<span class="pill pill-amber">Pendiente</span>{% endif %}
+        </td>
+        <td style="text-align:right; white-space:nowrap;">
+          <form method="post" action="{{ url_for('factura_estado', factura_id=f.id) }}" style="display:inline;">
+            <button class="btn btn-sm btn-outline" type="submit">{{ 'Marcar pendiente' if f.estado == 'Pagada' else 'Marcar pagada' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('factura_eliminar', factura_id=f.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta factura?');">
+            <button class="btn btn-sm btn-danger-outline" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">&#128179;</div>
+    No hay facturas registradas.
+  </div>
+  {% endif %}
+</div>
+
+{% if por_proveedor %}
+<div class="card" style="margin-top:18px;">
+  <div class="card-title">Gasto por proveedor</div>
+  <table>
+    <thead><tr><th>Proveedor</th><th>Facturas</th><th>Total</th></tr></thead>
+    <tbody>
+      {% for pv in por_proveedor %}
+      <tr>
+        <td>{{ pv.proveedor }}</td>
+        <td>{{ pv.n_facturas }}</td>
+        <td><strong>RD${{ "{:,}".format(pv.total) }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}

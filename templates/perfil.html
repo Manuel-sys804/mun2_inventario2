@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Mi perfil{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Mi perfil</div>
+    <div class="page-sub">{{ usuario_actual }} &middot; {{ rol_actual }}</div>
+  </div>
+</div>
+
+<div class="stat-strip">
+  <div class="stat-box">
+    <div class="stat-box-label">Mis ventas registradas</div>
+    <div class="stat-box-value">{{ mis_ventas_n }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Total vendido por mí</div>
+    <div class="stat-box-value" style="color:var(--success);">RD${{ "{:,}".format(mis_ventas_total) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Mis pedidos registrados</div>
+    <div class="stat-box-value">{{ mis_pedidos_n }}</div>
+  </div>
+</div>
+
+<div class="card form-card">
+  <div class="card-title">Cambiar contraseña</div>
+  <div class="card-sub">Usa al menos 4 caracteres</div>
+  <form method="POST">
+    <div class="form-group">
+      <label>Contraseña actual</label>
+      <input type="password" name="password_actual" required>
+    </div>
+    <div class="form-group">
+      <label>Nueva contraseña</label>
+      <input type="password" name="password_nueva" required>
+    </div>
+    <div class="form-group">
+      <label>Confirmar nueva contraseña</label>
+      <input type="password" name="password_confirmar" required>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Actualizar contraseña</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

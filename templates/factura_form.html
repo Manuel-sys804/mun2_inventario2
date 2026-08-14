@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Nueva factura{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Nueva factura de proveedor</div>
+    <div class="page-sub">Registra un gasto de mercancía, empaque o transporte</div>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('facturacion') }}">&larr; Volver a facturación</a>
+</div>
+
+<div class="card form-card">
+  <form method="POST">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Proveedor</label>
+        <input type="text" name="proveedor" list="proveedores-list" required>
+        <datalist id="proveedores-list">
+          {% for p in proveedores %}
+          <option value="{{ p.nombre }}">
+          {% endfor %}
+        </datalist>
+      </div>
+
+      <div class="form-group">
+        <label>N&deg; de factura</label>
+        <input type="text" name="numero_factura">
+      </div>
+
+      <div class="form-group">
+        <label>Monto (RD$)</label>
+        <input type="number" name="monto" required>
+      </div>
+
+      <div class="form-group">
+        <label>Categoría</label>
+        <select name="categoria">
+          <option value="Mercancía">Mercancía</option>
+          <option value="Empaque">Empaque</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" name="fecha">
+      </div>
+
+      <div class="form-group full">
+        <label>Notas</label>
+        <textarea name="notas" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Registrar factura</button>
+      <a class="btn btn-outline" href="{{ url_for('facturacion') }}">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

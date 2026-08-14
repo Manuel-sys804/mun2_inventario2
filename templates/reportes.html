@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Reportes{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Reportes</div>
+    <div class="page-sub">Valor de inventario, ventas históricas y ganancia real</div>
+  </div>
+</div>
+
+<div class="stat-strip">
+  <div class="stat-box">
+    <div class="stat-box-label">Valor de venta del inventario</div>
+    <div class="stat-box-value">RD${{ "{:,}".format(valor_venta) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Costo del inventario</div>
+    <div class="stat-box-value">RD${{ "{:,}".format(costo_total) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Ganancia potencial</div>
+    <div class="stat-box-value" style="color:var(--success);">RD${{ "{:,}".format(ganancia_potencial) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Ventas históricas</div>
+    <div class="stat-box-value">RD${{ "{:,}".format(total_ventas_historico) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Gasto facturado total</div>
+    <div class="stat-box-value">RD${{ "{:,}".format(gasto_facturado_total) }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-box-label">Ganancia real histórica</div>
+    <div class="stat-box-value" style="color:var(--success);">RD${{ "{:,}".format(ganancia_real_historica) }}</div>
+  </div>
+</div>
+
+<div class="row-2col" style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+  <div class="card">
+    <div class="card-title">Inventario por categoría</div>
+    <table>
+      <thead><tr><th>Categoría</th><th>Productos</th><th>Unidades</th><th>Valor</th></tr></thead>
+      <tbody>
+        {% for c in por_categoria %}
+        <tr>
+          <td>{{ c.categoria }}</td>
+          <td>{{ c.n_productos }}</td>
+          <td>{{ c.unidades }}</td>
+          <td><strong>RD${{ "{:,}".format(c.valor) }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Productos más vendidos</div>
+    <table>
+      <thead><tr><th>Producto</th><th>Unidades</th><th>Ingresos</th></tr></thead>
+      <tbody>
+        {% for m in mas_vendidos %}
+        <tr>
+          <td>{{ m.nombre }}</td>
+          <td><span class="pill pill-green">{{ m.unidades_vendidas }}</span></td>
+          <td><strong>RD${{ "{:,}".format(m.ingresos) }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

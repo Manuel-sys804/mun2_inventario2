@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MUN-2 · Iniciar sesión</title>
+
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#A10D09">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MUN-2">
+<style>
+  :root{
+    --red:#A10D09; --red-dark:#7C0A07; --red-soft:#FDE9E8;
+    --black:#131515; --charcoal:#1C1F1F;
+    --bg:#F5F3F1; --border:#E9E4E1; --muted:#7A7570;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; display:flex;
+    font-family:'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    background:linear-gradient(135deg, var(--black) 0%, var(--charcoal) 55%, var(--red-dark) 140%);
+  }
+  .panel{
+    margin:auto; width:380px; background:#fff; border-radius:20px;
+    padding:38px 34px; box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .badge{
+    width:52px; height:52px; border-radius:14px; background:var(--red);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:19px; margin:0 auto 16px auto;
+    box-shadow:0 8px 20px rgba(161,13,9,0.4);
+  }
+  h1{ text-align:center; font-size:20px; margin:0 0 2px 0; }
+  p.sub{ text-align:center; color:var(--muted); font-size:13px; margin:0 0 26px 0; }
+  label{ font-size:12.5px; font-weight:700; color:#333; display:block; margin-bottom:6px; }
+  input{
+    width:100%; padding:11px 13px; border:1px solid var(--border); border-radius:10px;
+    font-size:14px; margin-bottom:16px; background:#FAFAF9;
+  }
+  input:focus{ outline:none; border-color:var(--red); }
+  button{
+    width:100%; padding:12px; border:none; border-radius:10px; background:var(--red);
+    color:#fff; font-weight:700; font-size:14.5px; cursor:pointer;
+  }
+  button:hover{ background:var(--red-dark); }
+  .flash{ padding:10px 14px; border-radius:10px; background:var(--red-soft); color:var(--red-dark); font-size:13px; margin-bottom:16px; }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <div class="badge">M2</div>
+    <h1>MUN-2</h1>
+    <p class="sub">Inicia sesión para ver tu inventario</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <label>Usuario</label>
+      <input type="text" name="usuario" autocomplete="username" required>
+      <label>Contraseña</label>
+      <input type="password" name="password" autocomplete="current-password" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}");
+      });
+    }
+  </script>
+</body>
+</html>

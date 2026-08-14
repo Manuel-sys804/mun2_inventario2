@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Inventario{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Inventario</div>
+    <div class="page-sub">{{ productos|length }} productos en catálogo</div>
+  </div>
+  {% if rol_actual == 'Administrador' %}
+  <a class="btn btn-primary" href="{{ url_for('producto_nuevo') }}">+ Nuevo producto</a>
+  {% endif %}
+</div>
+
+<form class="filter-bar" method="get">
+  <input type="text" name="q" placeholder="Buscar por nombre o SKU..." value="{{ q }}">
+  <select name="categoria" onchange="this.form.submit()">
+    <option value="">Todas las categorías</option>
+    {% for c in categorias %}
+    <option value="{{ c.categoria }}" {% if c.categoria == categoria_actual %}selected{% endif %}>{{ c.categoria }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-outline" type="submit">Buscar</button>
+</form>
+
+<div class="card">
+  {% if productos %}
+  <table>
+    <thead>
+      <tr>
+        <th>SKU</th><th>Producto</th><th>Categoría</th><th>Color / Tallas</th>
+        <th>Precio</th><th>Stock</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in productos %}
+      <tr>
+        <td><strong>{{ p.sku }}</strong></td>
+        <td>{{ p.nombre }}</td>
+        <td><span class="pill pill-black">{{ p.categoria }}</span></td>
+        <td>{{ p.color }} &middot; {{ p.tallas }}</td>
+        <td>RD${{ "{:,}".format(p.precio_venta) }}</td>
+        <td>
+          {% if p.stock <= p.stock_minimo %}
+          <span class="pill pill-amber">{{ p.stock }} bajo</span>
+          {% else %}
+          <span class="pill pill-green">{{ p.stock }}</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right; white-space:nowrap;">
+          <form method="post" action="{{ url_for('producto_ajustar_stock', sku=p.sku) }}" style="display:inline;">
+            <input type="hidden" name="cantidad" value="1">
+            <button class="btn btn-sm btn-outline" type="submit" title="Sumar 1 unidad">+1</button>
+          </form>
+          {% if rol_actual == 'Administrador' %}
+          <a class="btn btn-sm btn-outline" href="{{ url_for('producto_editar', sku=p.sku) }}">Editar</a>
+          <form method="post" action="{{ url_for('producto_eliminar', sku=p.sku) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar {{ p.nombre }}?');">
+            <button class="btn btn-sm btn-danger-outline" type="submit">Eliminar</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">&#128230;</div>
+    No se encontraron productos con esos filtros.
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
